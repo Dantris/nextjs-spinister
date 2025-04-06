@@ -1,26 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState } from "react"; // ✅ Missing import
 
-// ✅ Define prop type correctly
-interface SignupFormProps {
-    setIsLoggedIn: React.Dispatch<React.SetStateAction<boolean | null>>;
-}
+export default function SignupForm({ setIsLoggedIn }: { setIsLoggedIn: (loggedIn: boolean) => void }) {
 
-export default function SignupForm({ setIsLoggedIn }: SignupFormProps) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+    const [success, setSuccess] = useState("");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        localStorage.setItem("user", email); // Simulate signup
-        setIsLoggedIn(true);
+        setError("");
+        setSuccess("");
+
+        try {
+            const response = await fetch("/api/auth/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ name, email, password }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Something went wrong");
+            }
+
+            setSuccess("User registered successfully!");
+            setIsLoggedIn(true);
+        } catch (err: any) {
+            setError(err.message);
+        }
     };
 
     return (
         <form onSubmit={handleSubmit} className="bg-white p-6 shadow-md rounded-lg">
             <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
+
+            {error && <p className="text-red-500">{error}</p>}
+            {success && <p className="text-green-500">{success}</p>}
 
             <label className="block mb-2">
                 Name:

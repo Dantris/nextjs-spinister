@@ -1,11 +1,7 @@
-module.exports = {
-  async redirects() {
-    return [
-      {
-        source: "/account",
-        destination: "/login",
-        permanent: false, // 🚨 This forces a redirect to /login
-      },
-    ];
-  },
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
 };
+
+export default nextConfig;

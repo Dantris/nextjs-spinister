@@ -1,12 +1,11 @@
 import { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "@/styles/globals.css"; // Ensure correct import
+import "@/styles/globals.css";
+
+import SessionProviderWrapper from "@/providers/SessionProvider"; // ✅ Fixed Import
+import Providers from "@/providers/Providers"; // ✅ Redux Provider
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
-import AuthProvider from "@/providers/auth-provider";
-
-
-
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,24 +17,26 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// ✅ Consistent naming for `metadata`
 export const metadata: Metadata = {
-  title: "Vinyl Store",
+  title: "Spinister",
   description: "Buy and discover vinyl records",
   icons: {
-    icon: "/favicon.ico", // ✅ Served from `public/`
+    icon: "/favicon.ico",
   },
 };
 
+// ✅ This file remains a Server Component
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="antialiased flex flex-col min-h-screen">
-        <AuthProvider>
-          <Navbar />
-          <main className="flex-grow">{children}</main>
-          <Footer />
-        </AuthProvider>
+      <body className="antialiased">
+        <SessionProviderWrapper> {/* ✅ NextAuth Provider */}
+          <Providers> {/* ✅ Redux Provider */}
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+          </Providers>
+        </SessionProviderWrapper>
       </body>
     </html>
   );

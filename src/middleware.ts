@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 // Define Middleware Function
 export function middleware(req: NextRequest) {
     const token = req.cookies.get("auth_token"); // Example: Check for auth token
+    const pathname = req.nextUrl.pathname;
+
 
     // 🚨 Instead of redirecting, show a normal page even if not logged in
     if (!token && req.nextUrl.pathname.startsWith("/account")) {
@@ -11,6 +13,10 @@ export function middleware(req: NextRequest) {
 
     if (!token && req.nextUrl.pathname.startsWith("/dashboard")) {
         return NextResponse.redirect(new URL("/login", req.url)); // Keep dashboard protected
+    }
+
+    if (pathname.startsWith("/api/")) {
+        return;
     }
 
     return NextResponse.next(); // Continue if authorized
