@@ -71,7 +71,7 @@ export default function Home() {
         >
           {vinyls.map((v) => (
             <div key={v.id}>
-              <img src={v.image || "https://via.placeholder.com/800x400"} alt={v.title} className="object-cover" />
+              <img src={v.image || "https://via.placeholder.com/800x400"} alt={v.title} className="object-cover h-72 w-full" />
               <p className="legend">{v.title} — {v.artist}</p>
             </div>
           ))}

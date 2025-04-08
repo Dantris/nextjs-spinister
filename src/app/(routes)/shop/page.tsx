@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import { notFound } from "next/navigation";
+import Link from "next/link";
 
 type Vinyl = {
     id: string;
@@ -13,64 +12,58 @@ type Vinyl = {
     image?: string;
 };
 
-export default function ProductPage() {
-    const params = useParams();
-    const [vinyl, setVinyl] = useState<Vinyl | null>(null);
+export default function ShopPage() {
+    const [vinyls, setVinyls] = useState<Vinyl[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!params.id) {
-            setError("Invalid vinyl ID");
-            return;
-        }
-
-        async function fetchVinyl() {
+        async function fetchVinyls() {
             try {
-                console.log("🔍 Fetching vinyl from API:", `/api/admin/get-vinyl/${params.id}`);
-                const res = await fetch(`/api/admin/get-vinyl/${params.id}`); // ✅ Fixed API Route
+                const res = await fetch("/api/admin/get-vinyls"); // ✅ Make sure this route exists
+                if (!res.ok) throw new Error("Failed to fetch vinyls");
 
-                if (!res.ok) {
-                    throw new Error("Vinyl not found");
-                }
-
-                const data: Vinyl = await res.json();
-                console.log("✅ Vinyl fetched successfully:", data);
-                setVinyl(data);
+                const data = await res.json();
+                setVinyls(data);
             } catch (err: any) {
-                console.error("🚨 Error fetching vinyl:", err);
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
         }
 
-        fetchVinyl();
-    }, [params.id]);
+        fetchVinyls();
+    }, []);
 
-    if (loading) return <p className="text-center">Loading vinyl details...</p>;
-    if (error) return notFound(); // Shows 404 page if vinyl not found
+    if (loading) return <p className="text-center">Loading vinyls...</p>;
+    if (error) return <p className="text-center text-red-500">Error: {error}</p>;
 
     return (
         <main className="container mx-auto p-6">
-            <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-                <img
-                    src={vinyl?.image || "https://via.placeholder.com/400"}
-                    alt={vinyl?.title}
-                    className="w-64 h-64 object-cover rounded-md"
-                />
+            <h1 className="text-3xl font-bold mb-6">🎵 Shop Vinyl Records</h1>
 
-                <div>
-                    <h1 className="text-3xl font-bold">{vinyl?.title}</h1>
-                    <p className="text-gray-500">{vinyl?.artist}</p>
-                    <p className="text-gray-500">Genre: {vinyl?.genre}</p>
-                    <p className="text-2xl font-bold mt-4">${vinyl?.price.toFixed(2)}</p>
-
-                    <button className="mt-4 px-6 py-2 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-600">
-                        Add to Cart 🛒
-                    </button>
+            {vinyls.length === 0 ? (
+                <p className="text-center text-gray-500">No vinyls available.</p>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {vinyls.map((record) => (
+                        <Link
+                            key={record.id}
+                            href={`/shop/${record.id}`}
+                            className="bg-white shadow-md p-4 rounded-lg hover:shadow-xl transition"
+                        >
+                            <img
+                                src={record.image || "https://via.placeholder.com/200"}
+                                alt={record.title}
+                                className="w-full h-48 object-cover rounded-md"
+                            />
+                            <h2 className="mt-2 text-xl font-semibold">{record.title}</h2>
+                            <p className="text-gray-500">{record.artist}</p>
+                            <p className="text-lg font-bold mt-2">${record.price.toFixed(2)}</p>
+                        </Link>
+                    ))}
                 </div>
-            </div>
+            )}
         </main>
     );
 }

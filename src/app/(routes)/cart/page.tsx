@@ -5,12 +5,16 @@ import { RootState } from "@/redux/store";
 import { removeFromCart, updateQuantity, clearCart } from "@/redux/cartSlice";
 import { loadStripe } from "@stripe/stripe-js";
 import { useState } from "react";
+import { useRouter } from 'next/navigation';
+
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function CartPage() {
     const cartItems = useSelector((state: RootState) => state.cart.items);
     const dispatch = useDispatch();
+    const router = useRouter();
+
 
     const totalPrice = cartItems
         .reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -25,39 +29,36 @@ export default function CartPage() {
         country: "",
     });
 
-    // ✅ Moved logic into an async function
+
+
     const handleCheckout = async () => {
-        try {
-            const res = await fetch("/api/checkout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ items: cartItems, address }),
-            });
+        const res = await fetch('/api/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                items: cartItems,
+                address,
+            }),
+        });
 
-            const data = await res.json();
+        const data = await res.json();
 
-            if (!res.ok) {
-                console.error("Checkout failed:", data.error);
-                return;
-            }
+        if (!data.id) {
+            console.error('❌ Failed to create Stripe session:', data.error);
+            return;
+        }
 
-            const stripe = await stripePromise;
-            if (!stripe) {
-                console.error("Stripe not loaded");
-                return;
-            }
+        const stripe = await stripePromise;
+        const result = await stripe?.redirectToCheckout({
+            sessionId: data.id,
+        });
 
-            const result = await stripe.redirectToCheckout({
-                sessionId: data.id,
-            });
-
-            if (result.error) {
-                console.error("Stripe redirect error:", result.error.message);
-            }
-        } catch (err) {
-            console.error("Error during checkout:", err);
+        if (result?.error) {
+            console.error('❌ Stripe redirect error:', result.error.message);
         }
     };
+
+
 
     return (
         <main className="container mx-auto p-6">

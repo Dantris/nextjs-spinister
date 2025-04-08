@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 
-import SessionProviderWrapper from "@/providers/SessionProvider"; // ✅ Fixed Import
+import SessionProviderWrapper from "@/providers/SessionProviderWrapper"; // ✅ Fixed Import
 import Providers from "@/providers/Providers"; // ✅ Redux Provider
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";

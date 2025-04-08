@@ -1,3 +1,4 @@
+// /api/create-checkout-session/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { PrismaClient } from "@prisma/client";
@@ -5,19 +6,12 @@ import { getToken } from "next-auth/jwt";
 
 const prisma = new PrismaClient();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2025-02-24.acacia", // ✅ Ensure the correct version
+    apiVersion: "2025-02-24.acacia",
 });
-
-interface TokenPayload {
-    id: string;
-    name?: string;
-    email?: string;
-    role?: "admin" | "user";
-}
 
 export async function POST(req: NextRequest) {
     try {
-        const token = (await getToken({ req })) as TokenPayload | null;
+        const token = await getToken({ req });
         const { items, address } = await req.json();
 
         const totalPrice = items.reduce(
@@ -43,15 +37,14 @@ export async function POST(req: NextRequest) {
             line_items: lineItems,
             success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
-
             customer_creation: "always",
         });
 
         await prisma.order.create({
             data: {
-                userId: token?.id || null, // ✅ use token here
+                userId: typeof token?.id === "string" ? token.id : null,
                 items,
-                total: parseFloat(totalPrice),
+                total: totalPrice,
                 paid: false,
                 shipped: false,
                 stripeSessionId: stripeSession.id,
@@ -64,12 +57,9 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        return NextResponse.json({ id: stripeSession.id });
+        return NextResponse.json({ id: stripeSession.id }); // ✅ IMPORTANT
     } catch (error: any) {
         console.error("🚨 Checkout Error:", error.message || error);
-        return NextResponse.json(
-            { error: error.message || "Internal server error" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

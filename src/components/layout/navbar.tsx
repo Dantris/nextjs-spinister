@@ -35,6 +35,12 @@ export default function Navbar() {
                     ) : (
                         <Link href="/account" className="hover:underline">Login</Link>
                     )}
+
+                    {session?.user?.role === "admin" && (
+                        <Link href="/admin/orders" className="text-red-500 font-semibold">
+                            Admin Orders
+                        </Link>
+                    )}
                 </div>
             </div>
         </nav>
