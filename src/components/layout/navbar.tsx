@@ -2,47 +2,43 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { DarkModeToggle } from "@/components/ui/DarkModeToggle";
 
 export default function Navbar() {
-    const { data: session } = useSession(); // ✅ Get session data
+    const { data: session } = useSession();
 
     return (
-        <nav className="bg-gray-900 text-white p-4">
-            <div className="container mx-auto flex justify-between items-center">
-                <Link href="/" className="text-xl font-bold">Spinister</Link>
+        <header className="sticky top-0 z-50 bg-white dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700">
+            <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">
+                    Spinister
+                </Link>
 
-                <div className="flex space-x-4">
+                <nav className="flex items-center gap-5 text-sm font-medium">
                     <Link href="/shop" className="hover:underline">Shop</Link>
                     <Link href="/cart" className="hover:underline">Cart</Link>
+                    <Link href="/blog" className="text-gray-500 dark:text-gray-300 hover:underline">Blog</Link>
 
-                    <Link href="/blog" className="text-gray-300 hover:text-white">
-                        Blog
+                    {session?.user?.role === "admin" && (
+                        <>
+                            <Link href="/blog/create" className="text-green-500 hover:text-green-600">Create</Link>
+                            <Link href="/admin" className="text-yellow-500 hover:text-yellow-600">Admin</Link>
+                            <Link
+                                href="/admin/orders"
+                                className="bg-red-100 dark:bg-red-500/10 text-red-700 dark:text-red-400 px-3 py-1 rounded-full font-semibold text-xs"
+                            >
+                                Admin Orders
+                            </Link>
+                        </>
+                    )}
+
+                    <Link href="/account" className="hover:underline">
+                        {session ? "Account" : "Login"}
                     </Link>
 
-                    {session?.user?.role === "admin" && (
-                        <Link href="/blog/create" className="text-green-400 hover:text-white">
-                            Create Blog
-                        </Link>
-                    )}
-
-                    {/* ✅ Only show Admin link if user is an admin */}
-                    {session?.user?.role === "admin" && (
-                        <Link href="/admin" className="hover:underline text-yellow-400 font-semibold">Admin</Link>
-                    )}
-
-                    {session ? (
-                        <Link href="/account" className="hover:underline">Account</Link>
-                    ) : (
-                        <Link href="/account" className="hover:underline">Login</Link>
-                    )}
-
-                    {session?.user?.role === "admin" && (
-                        <Link href="/admin/orders" className="text-red-500 font-semibold">
-                            Admin Orders
-                        </Link>
-                    )}
-                </div>
+                    <DarkModeToggle />
+                </nav>
             </div>
-        </nav>
+        </header>
     );
 }

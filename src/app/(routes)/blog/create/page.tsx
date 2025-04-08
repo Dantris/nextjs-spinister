@@ -27,46 +27,53 @@ export default function CreateBlogPage() {
         setMessage("✅ Blog created successfully!");
         setTitle("");
         setContent("");
-        setTimeout(() => {
-            router.push("/blog"); // Redirect after success
-        }, 1500);
+        setTimeout(() => router.push("/blog"), 1500);
     }
 
     return (
-        <main className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg mt-8">
-            <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">📝 Create New Blog</h2>
+        <main className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white px-4 py-12">
+            <div className="max-w-3xl mx-auto bg-white dark:bg-slate-800 shadow-md rounded-xl p-8">
+                <h2 className="text-4xl font-bold mb-6 text-center">📝 Create a New Blog Post</h2>
 
-            {message && <p className={`text-center font-semibold mb-4 ${message.includes("Failed") ? "text-red-500" : "text-green-500"}`}>{message}</p>}
+                {message && (
+                    <p
+                        className={`text-center font-semibold mb-6 ${message.includes("Failed") ? "text-red-500" : "text-green-500"
+                            }`}
+                    >
+                        {message}
+                    </p>
+                )}
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                {/* Title Input */}
-                <input
-                    type="text"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Blog Title"
-                    className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    required
-                />
+                <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+                    {/* Blog Title */}
+                    <input
+                        type="text"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        placeholder="Enter your blog title..."
+                        className="px-4 py-3 rounded-md bg-gray-100 dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        required
+                    />
 
-                {/* Content Input */}
-                <textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    placeholder="Write your blog content here..."
-                    rows={6}
-                    className="border border-gray-300 p-3 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
-                    required
-                />
+                    {/* Blog Content */}
+                    <textarea
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        placeholder="Write your blog content..."
+                        rows={8}
+                        className="px-4 py-3 rounded-md bg-gray-100 dark:bg-slate-700 dark:text-white border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
+                        required
+                    />
 
-                {/* Submit Button */}
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white px-5 py-2 rounded-md font-bold hover:bg-blue-600 transition duration-200"
-                >
-                    Publish Blog
-                </button>
-            </form>
+                    {/* Submit */}
+                    <button
+                        type="submit"
+                        className="px-6 py-3 bg-violet-500 hover:bg-violet-600 transition text-white font-bold rounded-md"
+                    >
+                        🚀 Publish Blog
+                    </button>
+                </form>
+            </div>
         </main>
     );
 }

@@ -13,6 +13,7 @@ type Order = {
     createdAt: string;
     user?: { name: string; email: string };
     name: string;
+    email: string;
     street: string;
     city: string;
     postalCode: string;
@@ -26,9 +27,8 @@ export default function AdminOrdersPage() {
 
     useEffect(() => {
         if (status === "loading") return;
-
         if (!session || session.user.role !== "admin") {
-            router.push("/"); // Redirect if not admin
+            router.push("/");
         } else {
             fetchOrders();
         }
@@ -51,45 +51,81 @@ export default function AdminOrdersPage() {
             alert("📦 Order marked as shipped!");
             fetchOrders();
         } else {
-            console.error("❌ Failed to mark as shipped");
             alert("❌ Something went wrong");
         }
     }
 
-    if (status === "loading" || !session) return <p>Loading...</p>;
+    if (status === "loading" || !session) return <p className="text-center mt-10">Loading orders...</p>;
 
     return (
-        <main className="p-6">
-            <h1 className="text-2xl font-bold mb-4">📦 Orders</h1>
+        <main className="max-w-6xl mx-auto px-6 py-10 text-gray-900 dark:text-white">
+            <h1 className="text-4xl font-bold mb-8">📦 Admin Orders</h1>
 
-            {orders.map((order) => (
-                <div key={order.id} className="border p-4 mb-4 rounded shadow">
-                    <p><strong>User:</strong> {order.user?.name || "Guest"}</p>
-                    <p><strong>Total:</strong> €{order.total.toFixed(2)}</p>
-                    <p><strong>Paid:</strong> {order.paid ? "✅" : "❌"}</p>
-                    <p><strong>Shipped:</strong> {order.shipped ? "📦 Yes" : "🚫 No"}</p>
-                    <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleString()}</p>
-                    <p><strong>Shipping To:</strong> {order.name}, {order.street}, {order.city} {order.postalCode}, {order.country}</p>
+            {orders.length === 0 ? (
+                <p className="text-gray-500 text-center">No orders yet.</p>
+            ) : (
+                <div className="space-y-6">
+                    {orders.map((order) => (
+                        <div
+                            key={order.id}
+                            className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow p-6"
+                        >
+                            <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4">
+                                <div className="space-y-1">
+                                    <p className="text-lg font-semibold">
+                                        👤 {order.user?.name || "Guest"} — {order.user?.email || order.email}
+                                    </p>
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                                        {new Date(order.createdAt).toLocaleString()}
+                                    </p>
+                                </div>
+                                <div className="flex gap-2 mt-4 md:mt-0">
+                                    <span
+                                        className={`px-3 py-1 rounded-full text-sm font-semibold ${order.paid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-600"
+                                            }`}
+                                    >
+                                        {order.paid ? "✅ Paid" : "❌ Unpaid"}
+                                    </span>
+                                    <span
+                                        className={`px-3 py-1 rounded-full text-sm font-semibold ${order.shipped ? "bg-blue-100 text-blue-700" : "bg-yellow-100 text-yellow-700"
+                                            }`}
+                                    >
+                                        {order.shipped ? "📦 Shipped" : "⏳ Not Shipped"}
+                                    </span>
+                                </div>
+                            </div>
 
-                    <details className="mt-2">
-                        <summary className="cursor-pointer underline">View Items</summary>
-                        <pre className="bg-gray-100 p-2 rounded mt-2 text-sm overflow-x-auto">
-                            {JSON.stringify(order.items, null, 2)}
-                        </pre>
-                    </details>
+                            <div className="mb-4">
+                                <p className="text-sm text-gray-500 dark:text-gray-400">
+                                    <strong>Shipping Address:</strong><br />
+                                    {order.name}, {order.street}, {order.postalCode} {order.city}, {order.country}
+                                </p>
+                                <p className="text-lg font-bold mt-2">💰 €{order.total.toFixed(2)}</p>
+                            </div>
 
-                    <button
-                        disabled={!order.paid || order.shipped}
-                        onClick={() => markAsShipped(order.id)}
-                        className={`mt-4 px-4 py-2 rounded text-white font-semibold ${order.shipped || !order.paid
-                                ? "bg-gray-400 cursor-not-allowed"
-                                : "bg-blue-600 hover:bg-blue-700"
-                            }`}
-                    >
-                        {order.shipped ? "✅ Shipped" : "Mark as Shipped"}
-                    </button>
+                            <details className="mt-2">
+                                <summary className="cursor-pointer underline font-medium text-sm text-gray-600 dark:text-gray-300">
+                                    View Items
+                                </summary>
+                                <pre className="bg-gray-100 dark:bg-gray-700 p-4 rounded text-sm mt-2 overflow-x-auto whitespace-pre-wrap">
+                                    {JSON.stringify(order.items, null, 2)}
+                                </pre>
+                            </details>
+
+                            <button
+                                disabled={!order.paid || order.shipped}
+                                onClick={() => markAsShipped(order.id)}
+                                className={`mt-6 px-5 py-2 rounded-md font-semibold text-white transition ${order.shipped || !order.paid
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-blue-600 hover:bg-blue-700"
+                                    }`}
+                            >
+                                {order.shipped ? "✅ Already Shipped" : "Mark as Shipped"}
+                            </button>
+                        </div>
+                    ))}
                 </div>
-            ))}
+            )}
         </main>
     );
 }

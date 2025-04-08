@@ -18,24 +18,16 @@ export default function AdminDashboard() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [vinyls, setVinyls] = useState<Vinyl[]>([]);
-    const [showForm, setShowForm] = useState(false); // ✅ Toggle form visibility
+    const [showForm, setShowForm] = useState(false);
 
     useEffect(() => {
-        console.log("✅ useEffect running | Status:", status, "| Session:", session);
-
-        if (status === "loading") return; // ✅ Wait for session to load
-        if (!session || !session.user || !session.user.role) {
-            console.warn("🚨 No user role found. Session data:", session);
-            return;
-        }
-        if (session.user.role !== "admin") {
-            console.warn("🚨 Redirecting non-admin user:", session.user);
+        if (status === "loading") return;
+        if (!session || session.user.role !== "admin") {
             router.push("/");
         } else {
             fetchVinyls();
         }
     }, [session, status]);
-
 
     async function fetchVinyls() {
         const res = await fetch("/api/admin/get-vinyls");
@@ -46,68 +38,69 @@ export default function AdminDashboard() {
     }
 
     async function handleDelete(id: string) {
-        const confirmed = window.confirm("Are you sure you want to delete this vinyl?");
-        if (!confirmed) return;
-
+        if (!confirm("Delete this vinyl?")) return;
         try {
-            const res = await fetch(`/api/admin/delete-vinyl?id=${id}`, {
-                method: "DELETE",
-            });
-
-            if (!res.ok) {
-                throw new Error("Failed to delete vinyl");
-            }
-
-            // ✅ Refresh the vinyl list after deletion
+            const res = await fetch(`/api/admin/delete-vinyl?id=${id}`, { method: "DELETE" });
+            if (!res.ok) throw new Error("Failed to delete");
             fetchVinyls();
         } catch (err) {
-            console.error("🚨 Delete error:", err);
-            alert("An error occurred while deleting the vinyl.");
+            console.error("❌ Delete failed:", err);
+            alert("Something went wrong");
         }
     }
 
-
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-            <p>Welcome, {session?.user?.email}!</p>
+        <main className="max-w-5xl mx-auto px-6 py-10 text-gray-900 dark:text-white">
+            <h1 className="text-4xl font-bold mb-4">👑 Admin Dashboard</h1>
+            <p className="text-gray-500 dark:text-gray-400">Welcome, {session?.user?.email}</p>
 
-            <h2 className="text-xl font-semibold mt-4">Vinyl Management</h2>
+            <div className="mt-8">
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-2xl font-semibold">🎵 Vinyl Collection</h2>
+                    <button
+                        onClick={() => setShowForm(!showForm)}
+                        className="px-4 py-2 rounded-md bg-violet-500 text-white font-semibold hover:bg-violet-600 transition"
+                    >
+                        {showForm ? "Cancel Upload" : "Upload New Vinyl"}
+                    </button>
+                </div>
 
-            {/* ✅ Upload Button to Show Form */}
-            <button
-                onClick={() => setShowForm(!showForm)}
-                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 mt-4"
-            >
-                {showForm ? "Cancel Upload" : "Upload Vinyl"}
-            </button>
+                {/* Upload Form */}
+                {showForm && (
+                    <div className="mb-8">
+                        <UploadVinylForm refreshVinyls={fetchVinyls} />
+                    </div>
+                )}
 
-            {/* ✅ Upload Form (Toggled by Button) */}
-            {showForm && <UploadVinylForm refreshVinyls={fetchVinyls} />}
-
-            <div className="mt-6">
-                <h3 className="text-lg font-bold">Vinyl Collection</h3>
+                {/* Vinyl List */}
                 {vinyls.length === 0 ? (
-                    <p>No vinyls available.</p>
+                    <p className="text-gray-500">No vinyls available yet.</p>
                 ) : (
-                    <ul>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         {vinyls.map((vinyl) => (
-                            <li key={vinyl.id} className="border p-3 my-2 flex justify-between">
-                                <div>
-                                    <p className="font-bold">{vinyl.title} - {vinyl.artist}</p>
-                                    <p>{vinyl.genre} | ${vinyl.price.toFixed(2)}</p>
+                            <div
+                                key={vinyl.id}
+                                className="bg-white dark:bg-slate-800 rounded-xl p-5 shadow hover:shadow-md transition"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div>
+                                        <h3 className="text-xl font-bold">{vinyl.title}</h3>
+                                        <p className="text-gray-500 dark:text-gray-400">{vinyl.artist}</p>
+                                        <p className="text-sm text-gray-400">{vinyl.genre}</p>
+                                        <p className="mt-1 font-semibold text-lg">${vinyl.price.toFixed(2)}</p>
+                                    </div>
+                                    <button
+                                        onClick={() => handleDelete(vinyl.id)}
+                                        className="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm font-medium"
+                                    >
+                                        Delete
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => handleDelete(vinyl.id)}
-                                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                                >
-                                    Delete
-                                </button>
-                            </li>
+                            </div>
                         ))}
-                    </ul>
+                    </div>
                 )}
             </div>
-        </div>
+        </main>
     );
 }

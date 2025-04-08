@@ -34,23 +34,41 @@ export default function BlogPostPage() {
                 setLoading(false);
             }
         }
+
         fetchBlog();
     }, [id]);
 
-    if (loading) return <p className="text-center text-gray-500">Loading blog post...</p>;
-    if (error) return <p className="text-center text-red-500 font-semibold">{error}</p>;
+    if (loading)
+        return (
+            <p className="text-center py-20 text-lg text-gray-500 dark:text-gray-400">
+                Loading blog post...
+            </p>
+        );
+
+    if (error)
+        return (
+            <p className="text-center py-20 text-red-500 font-semibold">{error}</p>
+        );
 
     return (
-        <main className="max-w-3xl mx-auto p-6">
-            <div className="bg-white p-8 rounded-lg shadow-lg">
-                <h1 className="text-4xl font-bold text-gray-800 mb-2">{blog?.title}</h1>
-                <p className="text-sm text-gray-500 mb-6">
-                    By <span className="font-medium text-gray-700">{blog?.author.name}</span> •{" "}
-                    {new Date(blog?.createdAt || "").toLocaleDateString()}
-                </p>
-                <article className="prose max-w-none text-gray-700 leading-relaxed">
-                    {blog?.content}
-                </article>
+        <main className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white px-6 py-16">
+            <div className="max-w-3xl mx-auto">
+                <div className="bg-white dark:bg-slate-800 p-8 md:p-10 rounded-2xl shadow-md">
+                    <h1 className="text-4xl font-extrabold leading-tight mb-4">
+                        {blog?.title}
+                    </h1>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                        By{" "}
+                        <span className="font-medium text-gray-700 dark:text-gray-300">
+                            {blog?.author.name}
+                        </span>{" "}
+                        • {new Date(blog?.createdAt || "").toLocaleDateString()}
+                    </p>
+
+                    <article className="prose dark:prose-invert max-w-none text-base leading-relaxed">
+                        {blog?.content}
+                    </article>
+                </div>
             </div>
         </main>
     );

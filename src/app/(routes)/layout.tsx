@@ -1,20 +1,18 @@
 import { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "@/styles/globals.css";
 
-import SessionProviderWrapper from "@/providers/SessionProviderWrapper"; // ✅ Fixed Import
-import Providers from "@/providers/Providers"; // ✅ Redux Provider
+import SessionProviderWrapper from "@/providers/SessionProviderWrapper";
+import Providers from "@/providers/Providers";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import { ThemeProvider } from "next-themes"; // ✅ NEW
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const poppins = Poppins({
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
@@ -25,18 +23,19 @@ export const metadata: Metadata = {
   },
 };
 
-// ✅ This file remains a Server Component
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className="antialiased">
-        <SessionProviderWrapper> {/* ✅ NextAuth Provider */}
-          <Providers> {/* ✅ Redux Provider */}
-            <Navbar />
-            <main>{children}</main>
-            <Footer />
-          </Providers>
-        </SessionProviderWrapper>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`antialiased ${poppins.variable} font-sans`}>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <SessionProviderWrapper>
+            <Providers>
+              <Navbar />
+              <main>{children}</main>
+              <Footer />
+            </Providers>
+          </SessionProviderWrapper>
+        </ThemeProvider>
       </body>
     </html>
   );

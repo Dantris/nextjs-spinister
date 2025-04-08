@@ -20,7 +20,7 @@ export default function ShopPage() {
     useEffect(() => {
         async function fetchVinyls() {
             try {
-                const res = await fetch("/api/admin/get-vinyls"); // ✅ Make sure this route exists
+                const res = await fetch("/api/admin/get-vinyls");
                 if (!res.ok) throw new Error("Failed to fetch vinyls");
 
                 const data = await res.json();
@@ -35,31 +35,47 @@ export default function ShopPage() {
         fetchVinyls();
     }, []);
 
-    if (loading) return <p className="text-center">Loading vinyls...</p>;
-    if (error) return <p className="text-center text-red-500">Error: {error}</p>;
+    if (loading) return <p className="text-center py-20 text-gray-500">Loading vinyls...</p>;
+    if (error) return <p className="text-center text-red-500 py-20 font-semibold">❌ {error}</p>;
 
     return (
-        <main className="container mx-auto p-6">
-            <h1 className="text-3xl font-bold mb-6">🎵 Shop Vinyl Records</h1>
+        <main className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white px-6 py-12">
+            {/* 🔥 Heading */}
+            <h1 className="text-4xl font-extrabold text-center mb-10">
+                <span className="bg-gradient-to-r from-violet-500 to-pink-400 text-transparent bg-clip-text">
+                    Explore Vinyl Records
+                </span>
+            </h1>
 
+            {/* 🛍️ Grid */}
             {vinyls.length === 0 ? (
-                <p className="text-center text-gray-500">No vinyls available.</p>
+                <p className="text-center text-gray-400 text-lg">No records found. Stay tuned!</p>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
                     {vinyls.map((record) => (
                         <Link
                             key={record.id}
                             href={`/shop/${record.id}`}
-                            className="bg-white shadow-md p-4 rounded-lg hover:shadow-xl transition"
+                            className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition group"
                         >
                             <img
-                                src={record.image || "https://via.placeholder.com/200"}
+                                src={record.image || "https://via.placeholder.com/300"}
                                 alt={record.title}
-                                className="w-full h-48 object-cover rounded-md"
+                                className="h-56 w-full object-cover group-hover:scale-105 transition-transform duration-300"
                             />
-                            <h2 className="mt-2 text-xl font-semibold">{record.title}</h2>
-                            <p className="text-gray-500">{record.artist}</p>
-                            <p className="text-lg font-bold mt-2">${record.price.toFixed(2)}</p>
+                            <div className="p-5">
+                                <h2 className="text-xl font-semibold">{record.title}</h2>
+                                <p className="text-gray-500 dark:text-gray-400">{record.artist}</p>
+
+                                <div className="flex justify-between items-center mt-4">
+                                    <span className="text-lg font-bold text-violet-500 dark:text-violet-400">
+                                        €{record.price.toFixed(2)}
+                                    </span>
+                                    <span className="text-sm px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded-full text-gray-600 dark:text-gray-300">
+                                        {record.genre}
+                                    </span>
+                                </div>
+                            </div>
                         </Link>
                     ))}
                 </div>
