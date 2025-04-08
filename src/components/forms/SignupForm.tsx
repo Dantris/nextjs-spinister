@@ -1,16 +1,19 @@
 "use client";
 
-import { useState } from "react"; // ✅ Missing import
+import { useState } from "react";
 
-export default function SignupForm({ setIsLoggedIn }: { setIsLoggedIn: (loggedIn: boolean) => void }) {
-
+export default function SignupForm({
+    setIsLoggedIn,
+}: {
+    setIsLoggedIn: (loggedIn: boolean) => void;
+}) {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
         setSuccess("");
@@ -32,8 +35,10 @@ export default function SignupForm({ setIsLoggedIn }: { setIsLoggedIn: (loggedIn
 
             setSuccess("User registered successfully!");
             setIsLoggedIn(true);
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            const message =
+                err instanceof Error ? err.message : "An unknown error occurred";
+            setError(message);
         }
     };
 
@@ -77,7 +82,10 @@ export default function SignupForm({ setIsLoggedIn }: { setIsLoggedIn: (loggedIn
                 />
             </label>
 
-            <button type="submit" className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600">
+            <button
+                type="submit"
+                className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+            >
                 Sign Up
             </button>
         </form>

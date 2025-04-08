@@ -5,7 +5,16 @@ import { loadStripe } from "@stripe/stripe-js";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
-export default function CheckoutButton({ cartItems }: { cartItems: any[] }) {
+// Define your CartItem type
+type CartItem = {
+    id: string;
+    title: string;
+    price: number;
+    quantity: number;
+    // Add other fields if needed (e.g., image, artist, etc.)
+};
+
+export default function CheckoutButton({ cartItems }: { cartItems: CartItem[] }) {
     const [loading, setLoading] = useState(false);
 
     const handleCheckout = async () => {
