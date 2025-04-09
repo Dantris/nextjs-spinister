@@ -1,11 +1,11 @@
 // app/success/page.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Stripe from 'stripe';
 
-export default function SuccessPage() {
+function SuccessContent() {
     const [session, setSession] = useState<Stripe.Checkout.Session | null>(null);
     const searchParams = useSearchParams();
     const sessionId = searchParams.get('session_id');
@@ -38,5 +38,13 @@ export default function SuccessPage() {
                 <p>Loading payment details...</p>
             )}
         </div>
+    );
+}
+
+export default function SuccessPage() {
+    return (
+        <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
+            <SuccessContent />
+        </Suspense>
     );
 }
