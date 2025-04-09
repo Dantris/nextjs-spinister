@@ -5,7 +5,7 @@ export async function GET() {
     const supabase = createServerClient();
 
     const { data: vinyls, error } = await supabase
-        .from("vinyls")
+        .from("Vinyl")
         .select("id, title, artist, genre, price, image");
 
     if (error) {

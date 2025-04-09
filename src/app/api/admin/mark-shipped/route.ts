@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
         const { orderId } = await req.json();
 
         const { data } = await supabase
-            .from("orders")
+            .from("Order")
             .update({ shipped: true })
             .eq("id", orderId)
             .select("id, email, name, street, postalCode, city, country, user:users (email, name)")

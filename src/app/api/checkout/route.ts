@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
             customer_creation: "always",
         });
 
-        await supabase.from("orders").insert([
+        await supabase.from("Order").insert([
             {
                 userId: token?.id || null,
                 items: items,

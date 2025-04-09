@@ -9,7 +9,7 @@ export async function GET(
     const { id } = params;
 
     const { data: vinyl, error } = await supabase
-        .from("vinyls")
+        .from("Vinyl")
         .select("id, title, artist, genre, price, image")
         .eq("id", id)
         .single();

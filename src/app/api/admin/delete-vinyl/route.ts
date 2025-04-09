@@ -10,7 +10,7 @@ export async function DELETE(req: Request) {
     }
 
     const { error } = await supabase
-        .from('vinyls')
+        .from('Vinyl')
         .delete()
         .eq('id', id);
 

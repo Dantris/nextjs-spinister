@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
             case "checkout.session.completed":
                 if (session.payment_status === "paid") {
                     await supabase
-                        .from("orders")
+                        .from("Order")
                         .update({ paid: true })
                         .eq("stripeSessionId", session.id);
                 }
@@ -38,14 +38,14 @@ export async function POST(req: NextRequest) {
 
             case "checkout.session.async_payment_succeeded":
                 await supabase
-                    .from("orders")
+                    .from("Order")
                     .update({ paid: true })
                     .eq("stripeSessionId", session.id);
                 break;
 
             case "checkout.session.async_payment_failed":
                 await supabase
-                    .from("orders")
+                    .from("Order")
                     .update({ paid: false })
                     .eq("stripeSessionId", session.id);
                 break;

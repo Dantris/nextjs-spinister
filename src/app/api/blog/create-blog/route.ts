@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     const supabase = createServerClient();
 
-    const { data, error } = await supabase.from("blogs").insert([
+    const { data, error } = await supabase.from("Blog").insert([
         {
             title,
             content,

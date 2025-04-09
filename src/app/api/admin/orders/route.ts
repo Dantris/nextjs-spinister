@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     const supabase = createServerClient();
 
     const { data: orders } = await supabase
-        .from("orders")
+        .from("Order")
         .select("*, users(name, email)")
         .order("createdAt", { ascending: false });
 

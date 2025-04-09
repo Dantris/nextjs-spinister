@@ -8,7 +8,7 @@ export async function GET(
     const supabase = createServerClient();
 
     const { data: blog, error } = await supabase
-        .from("blogs")
+        .from("Blog")
         .select("id, title, content, createdAt, author:users(name, email)")
         .eq("id", params.id)
         .single();

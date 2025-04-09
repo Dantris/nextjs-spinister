@@ -18,7 +18,7 @@ export const authOptions: NextAuthOptions = {
                 const supabase = createServerClient();
 
                 const { data: user, error } = await supabase
-                    .from("users")
+                    .from("User")
                     .select("id, email, name, password, role")
                     .eq("email", credentials.email)
                     .single();
