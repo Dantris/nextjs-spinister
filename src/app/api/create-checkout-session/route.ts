@@ -3,7 +3,6 @@ import Stripe from "stripe";
 import { PrismaClient, Prisma } from "@prisma/client";
 import { getToken } from "next-auth/jwt";
 
-
 const prisma = new PrismaClient();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2025-02-24.acacia",
@@ -50,7 +49,7 @@ export async function POST(req: NextRequest) {
             0
         );
 
-        const lineItems = items.map((item) => ({
+        const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item) => ({
             price_data: {
                 currency: "eur",
                 product_data: {
@@ -88,14 +87,10 @@ export async function POST(req: NextRequest) {
             },
         });
 
-
-
         return NextResponse.json({ id: stripeSession.id });
-    } catch (error) {
-        const err = error as Error;
-        console.error("🚨 Checkout Error:", err.message || error);
+    } catch {
         return NextResponse.json(
-            { error: err.message || "Internal server error" },
+            { error: "Something went wrong" },
             { status: 500 }
         );
     }

@@ -1,14 +1,10 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
+import { createServerClient } from "@/lib/supabase/server";
 
 export const authOptions: NextAuthOptions = {
-    adapter: PrismaAdapter(prisma),
     providers: [
         CredentialsProvider({
             name: "credentials",
@@ -17,51 +13,21 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                console.log("✅ Received login attempt:", credentials);
+                if (!credentials?.email || !credentials?.password) return null;
 
-                if (!credentials?.email || !credentials?.password) {
-                    console.error("🚨 Missing email or password.");
-                    return null;
-                }
+                const supabase = createServerClient();
 
-                // 🔹 Find user in the database
-                const user = await prisma.user.findUnique({
-                    where: { email: credentials.email },
-                    select: {
-                        id: true,
-                        email: true,
-                        name: true,
-                        password: true,
-                        role: true,
-                    },
-                });
+                const { data: user, error } = await supabase
+                    .from("users")
+                    .select("id, email, name, password, role")
+                    .eq("email", credentials.email)
+                    .single();
 
-                console.log("🔍 Found user in database:", user);
+                if (error || !user || !user.password) return null;
 
-                // 🔹 If no user is found, reject login
-                if (!user) {
-                    console.error("🚨 No user found with this email.");
-                    return null;
-                }
+                const isValid = await bcrypt.compare(credentials.password, user.password);
+                if (!isValid) return null;
 
-                // 🔹 If password is missing (e.g., Google login), reject login
-                if (!user.password) {
-                    console.error("🚨 User has no password set. Use Google login.");
-                    return null;
-                }
-
-                // 🔹 Compare password using bcrypt
-                const passwordMatch = await bcrypt.compare(credentials.password, user.password);
-                console.log("🔍 Password match:", passwordMatch);
-
-                if (!passwordMatch) {
-                    console.error("🚨 Incorrect password.");
-                    return null;
-                }
-
-                console.log("✅ Login successful! Returning user:", user.email);
-
-                // ✅ Return only safe user data
                 return {
                     id: user.id,
                     email: user.email,
@@ -84,7 +50,6 @@ export const authOptions: NextAuthOptions = {
                 token.id = user.id;
                 token.role = user.role as "admin" | "user";
             }
-            console.log("✅ JWT Token:", token);
             return token;
         },
         async session({ session, token }) {
@@ -92,7 +57,6 @@ export const authOptions: NextAuthOptions = {
                 session.user.id = token.id as string;
                 session.user.role = token.role as "admin" | "user";
             }
-            console.log("✅ Final Session:", session);
             return session;
         },
     },

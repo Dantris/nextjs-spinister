@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { createServerClient } from "@/lib/supabase/server";
 
 export async function GET(req: NextRequest) {
     const token = await getToken({ req });
@@ -11,17 +9,17 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const orders = await prisma.order.findMany({
-        include: {
-            user: {
-                select: {
-                    name: true,
-                    email: true,
-                },
-            },
-        },
-        orderBy: { createdAt: "desc" },
-    });
+    const supabase = createServerClient();
 
-    return NextResponse.json(orders);
+    const { data: orders } = await supabase
+        .from("orders")
+        .select("*, users(name, email)")
+        .order("createdAt", { ascending: false });
+
+    return NextResponse.json(
+        (orders || []).map((order) => ({
+            ...order,
+            user: order.users ?? null,
+        }))
+    );
 }

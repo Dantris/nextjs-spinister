@@ -18,9 +18,7 @@ export async function GET(req: NextRequest) {
         });
 
         return NextResponse.json(session);
-    } catch (error) {
-        const err = error as Error;
-        console.error("Error fetching session:", err.message || error);
-        return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch {
+        return NextResponse.json({ error: "Failed to fetch session" }, { status: 500 });
     }
 }

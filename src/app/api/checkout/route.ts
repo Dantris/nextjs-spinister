@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { PrismaClient, Prisma } from "@prisma/client";
 import { getToken } from "next-auth/jwt";
+import { createServerClient } from "@/lib/supabase/server";
 
-const prisma = new PrismaClient();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2025-02-24.acacia",
 });
@@ -34,6 +33,8 @@ interface TokenPayload {
 }
 
 export async function POST(req: NextRequest) {
+    const supabase = createServerClient();
+
     try {
         const token = (await getToken({ req })) as TokenPayload | null;
         const body: { items: CartItem[]; address: Address } = await req.json();
@@ -65,10 +66,10 @@ export async function POST(req: NextRequest) {
             customer_creation: "always",
         });
 
-        await prisma.order.create({
-            data: {
+        await supabase.from("orders").insert([
+            {
                 userId: token?.id || null,
-                items: items as unknown as Prisma.InputJsonValue,
+                items: items,
                 total: parseFloat(totalPrice.toFixed(2)),
                 paid: false,
                 shipped: false,
@@ -80,13 +81,10 @@ export async function POST(req: NextRequest) {
                 postalCode: address.postalCode,
                 country: address.country,
             },
-        });
+        ]);
 
         return NextResponse.json({ id: stripeSession.id });
     } catch {
-        return NextResponse.json(
-            { error: "Something went wrong" },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
 }

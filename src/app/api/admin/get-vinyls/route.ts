@@ -1,24 +1,16 @@
-import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
+import { createServerClient } from "@/lib/supabase/server";
 
 export async function GET() {
-    try {
-        const vinyls = await prisma.vinyl.findMany({
-            select: {
-                id: true,
-                title: true,
-                artist: true,
-                genre: true,
-                price: true,
-                image: true,
-            },
-        });
+    const supabase = createServerClient();
 
-        return NextResponse.json(vinyls, { status: 200 });
-    } catch (error) {
-        console.error("🚨 Error fetching vinyls:", error);
+    const { data: vinyls, error } = await supabase
+        .from("vinyls")
+        .select("id, title, artist, genre, price, image");
+
+    if (error) {
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
+
+    return NextResponse.json(vinyls, { status: 200 });
 }

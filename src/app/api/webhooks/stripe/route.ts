@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { PrismaClient } from "@prisma/client";
+import { createServerClient } from "@/lib/supabase/server";
 
-const prisma = new PrismaClient();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2025-02-24.acacia",
 });
@@ -19,55 +18,44 @@ export async function POST(req: NextRequest) {
             sig!,
             process.env.STRIPE_WEBHOOK_SECRET!
         );
-    } catch (err) {
-        if (err instanceof Error) {
-            console.error("❌ Webhook error:", err.message);
-        } else {
-            console.error("❌ Webhook error:", err);
-        }
+    } catch {
         return NextResponse.json({ error: "Webhook failed" }, { status: 400 });
     }
 
-
+    const supabase = createServerClient();
     const session = event.data.object as Stripe.Checkout.Session;
 
     try {
         switch (event.type) {
             case "checkout.session.completed":
                 if (session.payment_status === "paid") {
-                    await prisma.order.updateMany({
-                        where: { stripeSessionId: session.id },
-                        data: { paid: true },
-                    });
-                    console.log(`✅ Order marked as paid (immediate) for session: ${session.id}`);
-                } else {
-                    console.log(`⚠️ Checkout completed but not yet paid (status: ${session.payment_status})`);
+                    await supabase
+                        .from("orders")
+                        .update({ paid: true })
+                        .eq("stripeSessionId", session.id);
                 }
                 break;
 
             case "checkout.session.async_payment_succeeded":
-                await prisma.order.updateMany({
-                    where: { stripeSessionId: session.id },
-                    data: { paid: true },
-                });
-                console.log(`✅ Delayed payment succeeded. Order marked as paid for session: ${session.id}`);
+                await supabase
+                    .from("orders")
+                    .update({ paid: true })
+                    .eq("stripeSessionId", session.id);
                 break;
 
             case "checkout.session.async_payment_failed":
-                await prisma.order.updateMany({
-                    where: { stripeSessionId: session.id },
-                    data: { paid: false },
-                });
-                console.warn(`❌ Delayed payment failed for session: ${session.id}`);
+                await supabase
+                    .from("orders")
+                    .update({ paid: false })
+                    .eq("stripeSessionId", session.id);
                 break;
 
             default:
-                console.log(`ℹ️ Unhandled event type: ${event.type}`);
+                break;
         }
 
         return NextResponse.json({ received: true });
-    } catch (err) {
-        console.error("❌ Error handling webhook event:", err);
+    } catch {
         return NextResponse.json({ error: "Webhook handling error" }, { status: 500 });
     }
 }

@@ -1,17 +1,17 @@
-import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
-
-const prisma = new PrismaClient();
+import { createServerClient } from "@/lib/supabase/server";
 
 export async function GET() {
-    try {
-        const blogs = await prisma.blog.findMany({
-            include: { author: { select: { name: true, email: true } } },
-            orderBy: { createdAt: "desc" },
-        });
+    const supabase = createServerClient();
 
-        return NextResponse.json(blogs, { status: 200 });
-    } catch {
+    const { data: blogs, error } = await supabase
+        .from("blogs")
+        .select("id, title, content, createdAt, author:users(name, email)")
+        .order("createdAt", { ascending: false });
+
+    if (error || !blogs) {
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
+
+    return NextResponse.json(blogs, { status: 200 });
 }
