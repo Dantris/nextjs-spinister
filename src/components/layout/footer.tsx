@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Footer() {
     return (
         <footer className="w-full bg-gray-900 text-white py-12">
@@ -10,18 +12,18 @@ export default function Footer() {
 
                 {/* Links */}
                 <nav className="mt-6 flex justify-center flex-wrap gap-6 text-sm font-medium">
-                    <a href="/shop" className="text-gray-300 hover:text-violet-400 transition">
+                    <Link href="/shop" className="text-gray-300 hover:text-violet-400 transition">
                         Shop
-                    </a>
-                    <a href="/cart" className="text-gray-300 hover:text-violet-400 transition">
+                    </Link>
+                    <Link href="/cart" className="text-gray-300 hover:text-violet-400 transition">
                         Cart
-                    </a>
-                    <a href="/account" className="text-gray-300 hover:text-violet-400 transition">
+                    </Link>
+                    <Link href="/account" className="text-gray-300 hover:text-violet-400 transition">
                         Account
-                    </a>
-                    <a href="/contact" className="text-gray-300 hover:text-violet-400 transition">
+                    </Link>
+                    <Link href="/contact" className="text-gray-300 hover:text-violet-400 transition">
                         Contact
-                    </a>
+                    </Link>
                 </nav>
 
                 {/* Newsletter Signup */}

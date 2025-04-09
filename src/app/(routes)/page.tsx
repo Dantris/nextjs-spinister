@@ -6,7 +6,6 @@ import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import Image from "next/image";
 
-
 type Vinyl = {
   id: string;
   title: string;
@@ -40,8 +39,11 @@ export default function Home() {
 
         setVinyls(await vinylRes.json());
         setBlogs(await blogRes.json());
-      } catch (err: any) {
-        setError(err.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error(error.message);
+          setError(error.message);
+        }
       } finally {
         setLoading(false);
       }
@@ -50,8 +52,10 @@ export default function Home() {
     fetchData();
   }, []);
 
-  if (loading) return <p className="text-center py-20 text-lg">Loading your sound...</p>;
-  if (error) return <p className="text-center text-red-500 py-20">Error: {error}</p>;
+  if (loading)
+    return <p className="text-center py-20 text-lg">Loading your sound...</p>;
+  if (error)
+    return <p className="text-center text-red-500 py-20">Error: {error}</p>;
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white">
@@ -68,11 +72,15 @@ export default function Home() {
         >
           {vinyls.map((v) => (
             <div key={v.id}>
-              <Image
-                src={v.image || "https://via.placeholder.com/800x400"}
-                alt={v.title}
-                className="object-cover h-80 w-full"
-              />
+              <div className="relative w-full h-80">
+                <Image
+                  src={v.image || "https://via.placeholder.com/800x400"}
+                  alt={v.title}
+                  fill
+                  className="object-cover"
+                  sizes="100vw"
+                />
+              </div>
               <p className="legend bg-black bg-opacity-60 text-white text-lg font-semibold px-4 py-2 rounded">
                 {v.title} — {v.artist}
               </p>
@@ -118,11 +126,15 @@ export default function Home() {
               href={`/shop/${record.id}`}
               className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition group"
             >
-              <Image
-                src={record.image || "https://via.placeholder.com/400"}
-                alt={record.title}
-                className="h-56 w-full object-cover group-hover:scale-105 transition-transform duration-300"
-              />
+              <div className="relative w-full h-56">
+                <Image
+                  src={record.image || "https://via.placeholder.com/400"}
+                  alt={record.title}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+                />
+              </div>
               <div className="p-5">
                 <h3 className="text-xl font-semibold">{record.title}</h3>
                 <p className="text-gray-500 dark:text-gray-400">{record.artist}</p>

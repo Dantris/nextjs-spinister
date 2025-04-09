@@ -12,7 +12,9 @@ type Blog = {
 };
 
 export default function BlogPostPage() {
-    const { id } = useParams();
+    const params = useParams();
+    const id = params?.id as string;
+
     const [blog, setBlog] = useState<Blog | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -20,7 +22,7 @@ export default function BlogPostPage() {
     useEffect(() => {
         async function fetchBlog() {
             try {
-                const res = await fetch(`/api/blog/get-blogs`);
+                const res = await fetch("/api/blog/get-blogs");
                 if (!res.ok) throw new Error("Blog not found");
 
                 const data: Blog[] = await res.json();
@@ -28,14 +30,17 @@ export default function BlogPostPage() {
                 if (!foundBlog) throw new Error("Blog not found");
 
                 setBlog(foundBlog);
-            } catch (err: any) {
-                setError(err.message);
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error(error.message);
+                    setError(error.message);
+                }
             } finally {
                 setLoading(false);
             }
         }
 
-        fetchBlog();
+        if (id) fetchBlog();
     }, [id]);
 
     if (loading)

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 type Vinyl = {
@@ -25,8 +26,11 @@ export default function ShopPage() {
 
                 const data = await res.json();
                 setVinyls(data);
-            } catch (err: any) {
-                setError(err.message);
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error(error.message);
+                    setError(error.message);
+                }
             } finally {
                 setLoading(false);
             }
@@ -58,7 +62,7 @@ export default function ShopPage() {
                             href={`/shop/${record.id}`}
                             className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition group"
                         >
-                            <img
+                            <Image
                                 src={record.image || "https://via.placeholder.com/300"}
                                 alt={record.title}
                                 className="h-56 w-full object-cover group-hover:scale-105 transition-transform duration-300"

@@ -36,7 +36,7 @@ export default function AdminOrdersPage() {
         } else {
             fetchOrders();
         }
-    }, [session, status]);
+    }, [session, status, router]);
 
     async function fetchOrders() {
         const res = await fetch("/api/admin/orders");

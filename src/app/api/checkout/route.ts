@@ -1,12 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { getToken } from "next-auth/jwt";
 
 const prisma = new PrismaClient();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2025-02-24.acacia", // ✅ Ensure the correct version
+    apiVersion: "2025-02-24.acacia",
 });
+
+interface CartItem {
+    id: string;
+    title: string;
+    artist: string;
+    price: number;
+    quantity: number;
+    image?: string;
+}
+
+interface Address {
+    name: string;
+    email: string;
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+}
 
 interface TokenPayload {
     id: string;
@@ -18,14 +36,15 @@ interface TokenPayload {
 export async function POST(req: NextRequest) {
     try {
         const token = (await getToken({ req })) as TokenPayload | null;
-        const { items, address } = await req.json();
+        const body: { items: CartItem[]; address: Address } = await req.json();
+        const { items, address } = body;
 
         const totalPrice = items.reduce(
-            (sum: number, item: any) => sum + item.price * item.quantity,
+            (sum, item) => sum + item.price * item.quantity,
             0
         );
 
-        const lineItems = items.map((item: any) => ({
+        const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item) => ({
             price_data: {
                 currency: "eur",
                 product_data: {
@@ -43,15 +62,14 @@ export async function POST(req: NextRequest) {
             line_items: lineItems,
             success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
-
             customer_creation: "always",
         });
 
         await prisma.order.create({
             data: {
-                userId: token?.id || null, // ✅ use token here
-                items,
-                total: parseFloat(totalPrice),
+                userId: token?.id || null,
+                items: items as unknown as Prisma.InputJsonValue,
+                total: parseFloat(totalPrice.toFixed(2)),
                 paid: false,
                 shipped: false,
                 stripeSessionId: stripeSession.id,
@@ -65,10 +83,9 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json({ id: stripeSession.id });
-    } catch (error: any) {
-        console.error("🚨 Checkout Error:", error.message || error);
+    } catch {
         return NextResponse.json(
-            { error: error.message || "Internal server error" },
+            { error: "Something went wrong" },
             { status: 500 }
         );
     }

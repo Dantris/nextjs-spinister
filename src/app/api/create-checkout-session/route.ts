@@ -1,25 +1,56 @@
-// /api/create-checkout-session/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Prisma } from "@prisma/client";
 import { getToken } from "next-auth/jwt";
+
 
 const prisma = new PrismaClient();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2025-02-24.acacia",
 });
 
+interface CartItem {
+    id: string;
+    title: string;
+    artist: string;
+    price: number;
+    quantity: number;
+    image?: string;
+}
+
+interface Address {
+    name: string;
+    email: string;
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+}
+
+interface RequestBody {
+    items: CartItem[];
+    address: Address;
+}
+
+interface TokenPayload {
+    id: string;
+    name?: string;
+    email?: string;
+    role?: "admin" | "user";
+}
+
 export async function POST(req: NextRequest) {
     try {
-        const token = await getToken({ req });
-        const { items, address } = await req.json();
+        const token = (await getToken({ req })) as TokenPayload | null;
+        const body = (await req.json()) as RequestBody;
+        const { items, address } = body;
 
         const totalPrice = items.reduce(
-            (sum: number, item: any) => sum + item.price * item.quantity,
+            (sum, item) => sum + item.price * item.quantity,
             0
         );
 
-        const lineItems = items.map((item: any) => ({
+        const lineItems = items.map((item) => ({
             price_data: {
                 currency: "eur",
                 product_data: {
@@ -42,9 +73,9 @@ export async function POST(req: NextRequest) {
 
         await prisma.order.create({
             data: {
-                userId: typeof token?.id === "string" ? token.id : null,
-                items,
-                total: totalPrice,
+                userId: token?.id || null,
+                items: items as unknown as Prisma.InputJsonValue,
+                total: parseFloat(totalPrice.toFixed(2)),
                 paid: false,
                 shipped: false,
                 stripeSessionId: stripeSession.id,
@@ -57,9 +88,15 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        return NextResponse.json({ id: stripeSession.id }); // ✅ IMPORTANT
-    } catch (error: any) {
-        console.error("🚨 Checkout Error:", error.message || error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+
+
+        return NextResponse.json({ id: stripeSession.id });
+    } catch (error) {
+        const err = error as Error;
+        console.error("🚨 Checkout Error:", err.message || error);
+        return NextResponse.json(
+            { error: err.message || "Internal server error" },
+            { status: 500 }
+        );
     }
 }

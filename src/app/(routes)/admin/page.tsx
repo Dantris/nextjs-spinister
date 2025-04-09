@@ -27,7 +27,7 @@ export default function AdminDashboard() {
         } else {
             fetchVinyls();
         }
-    }, [session, status]);
+    }, [session, status, router]);
 
     async function fetchVinyls() {
         const res = await fetch("/api/admin/get-vinyls");

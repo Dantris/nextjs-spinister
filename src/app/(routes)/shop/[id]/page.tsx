@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { addToCart } from "@/redux/cartSlice";
+import Image from 'next/image'
 import toast from "react-hot-toast";
 
 type Vinyl = {
@@ -35,8 +36,11 @@ export default function ProductPage() {
 
                 const data: Vinyl = await res.json();
                 setVinyl(data);
-            } catch (err: any) {
-                setError(err.message);
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    console.error(error.message);
+                    setError(error.message);
+                }
             } finally {
                 setLoading(false);
             }
@@ -52,9 +56,9 @@ export default function ProductPage() {
         <main className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white px-6 py-12">
             <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-12">
                 {/* 🖼 Image */}
-                <img
+                <Image
                     src={vinyl?.image || "https://via.placeholder.com/400"}
-                    alt={vinyl?.title}
+                    alt={vinyl?.title ?? "Vinyl record"}
                     className="w-full max-w-sm h-auto object-cover rounded-xl shadow-lg"
                 />
 

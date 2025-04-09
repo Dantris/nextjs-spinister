@@ -11,7 +11,8 @@ export async function DELETE(req: Request) {
     try {
         await prisma.vinyl.delete({ where: { id } });
         return new Response(JSON.stringify({ message: "Vinyl deleted" }), { status: 200 });
-    } catch (error) {
+    } catch {
         return new Response(JSON.stringify({ error: "Something went wrong" }), { status: 500 });
     }
+
 }

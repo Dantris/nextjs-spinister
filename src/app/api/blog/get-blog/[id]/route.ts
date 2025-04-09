@@ -10,10 +10,12 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
             include: { author: { select: { name: true, email: true } } },
         });
 
-        if (!blog) return NextResponse.json({ error: "Blog not found" }, { status: 404 });
+        if (!blog) {
+            return NextResponse.json({ error: "Blog not found" }, { status: 404 });
+        }
 
         return NextResponse.json(blog, { status: 200 });
-    } catch (error) {
+    } catch {
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
 }

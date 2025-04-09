@@ -12,28 +12,24 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // 🔹 Check if user already exists
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
             return NextResponse.json({ error: "User already exists" }, { status: 400 });
         }
 
-        // 🔹 Hash the password before saving
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 🔹 Create user in DB
-        const newUser = await prisma.user.create({
+        await prisma.user.create({
             data: {
                 name,
                 email,
                 password: hashedPassword,
-                role: "user", // Default role is "user"
+                role: "user",
             },
         });
 
         return NextResponse.json({ message: "User registered successfully!" }, { status: 201 });
-    } catch (error) {
-        console.error("🚨 Registration Error:", error);
+    } catch {
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
 }
