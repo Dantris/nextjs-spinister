@@ -5,14 +5,12 @@ import { RootState } from "@/redux/store";
 import { removeFromCart, updateQuantity, clearCart } from "@/redux/cartSlice";
 import { loadStripe } from "@stripe/stripe-js";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
 
 export default function CartPage() {
     const cartItems = useSelector((state: RootState) => state.cart.items);
     const dispatch = useDispatch();
-    const router = useRouter();
 
     const totalPrice = cartItems
         .reduce((sum, item) => sum + item.price * item.quantity, 0)

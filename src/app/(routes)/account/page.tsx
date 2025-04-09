@@ -10,7 +10,7 @@ export default function AccountPage() {
     const { data: session, status } = useSession();
     const isLoggedIn = status === "authenticated";
     const [showSignup, setShowSignup] = useState(false);
-    const [userLoggedIn, setIsLoggedIn] = useState(false);
+    const setIsLoggedIn = () => { };
 
     if (status === "loading") {
         return (

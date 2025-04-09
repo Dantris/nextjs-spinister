@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+import Image from "next/image";
+
 
 type Vinyl = {
   id: string;
@@ -66,7 +68,7 @@ export default function Home() {
         >
           {vinyls.map((v) => (
             <div key={v.id}>
-              <img
+              <Image
                 src={v.image || "https://via.placeholder.com/800x400"}
                 alt={v.title}
                 className="object-cover h-80 w-full"
@@ -116,7 +118,7 @@ export default function Home() {
               href={`/shop/${record.id}`}
               className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition group"
             >
-              <img
+              <Image
                 src={record.image || "https://via.placeholder.com/400"}
                 alt={record.title}
                 className="h-56 w-full object-cover group-hover:scale-105 transition-transform duration-300"

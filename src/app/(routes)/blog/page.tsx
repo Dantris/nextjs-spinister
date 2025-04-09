@@ -24,9 +24,11 @@ export default function BlogPage() {
 
                 const data: Blog[] = await res.json();
                 setBlogs(data);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
+            } catch (err: unknown) {
+                const message = err instanceof Error ? err.message : "Something went wrong";
+                setError(message);
+            }
+            finally {
                 setLoading(false);
             }
         }

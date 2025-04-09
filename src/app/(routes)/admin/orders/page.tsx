@@ -6,19 +6,23 @@ import { useRouter } from "next/navigation";
 
 type Order = {
     id: string;
-    items: any;
+    items: unknown;
     total: number;
     paid: boolean;
     shipped: boolean;
     createdAt: string;
-    user?: { name: string; email: string };
     name: string;
     email: string;
     street: string;
     city: string;
     postalCode: string;
     country: string;
+    user?: {
+        name: string;
+        email: string;
+    };
 };
+
 
 export default function AdminOrdersPage() {
     const { data: session, status } = useSession();
