@@ -1,8 +1,7 @@
-import { createClient } from '@supabase/supabase-js'
+// lib/supabase/server.ts
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
 
 export function createServerClient() {
-    return createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    return createServerComponentClient({ cookies });
 }
