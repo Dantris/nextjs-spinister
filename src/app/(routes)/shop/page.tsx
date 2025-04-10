@@ -62,11 +62,16 @@ export default function ShopPage() {
                             href={`/shop/${record.id}`}
                             className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition group"
                         >
-                            <Image
-                                src={record.image || "https://via.placeholder.com/300"}
-                                alt={record.title}
-                                className="h-56 w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
+                            <div className="relative w-full h-56">
+                                <Image
+                                    src={record.image || "https://via.placeholder.com/300"}
+                                    alt={record.title}
+                                    fill
+                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                    sizes="(max-width: 768px) 100vw, 33vw"
+                                />
+                            </div>
+
                             <div className="p-5">
                                 <h2 className="text-xl font-semibold">{record.title}</h2>
                                 <p className="text-gray-500 dark:text-gray-400">{record.artist}</p>

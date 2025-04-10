@@ -12,7 +12,7 @@ interface OrderData {
     postalCode?: string;
     city?: string;
     country?: string;
-    user?: {
+    User?: {
         email?: string;
         name?: string;
     };
@@ -24,20 +24,19 @@ export async function POST(req: NextRequest) {
     try {
         const { orderId } = await req.json();
 
-        const { data } = await supabase
+        const { data, error } = await supabase
             .from("Order")
             .update({ shipped: true })
             .eq("id", orderId)
-            .select("id, email, name, street, postalCode, city, country, user:users (email, name)")
+            .select("id, email, name, street, postalCode, city, country, User(email, name)")
             .single();
 
-        const order = data as OrderData;
-
-        if (!order) {
+        if (error || !data) {
             return NextResponse.json({ error: "Order not found or update failed" }, { status: 500 });
         }
 
-        const emailToSend = order.email || order.user?.email;
+        const order = data as OrderData;
+        const emailToSend = order.email || order.User?.email;
 
         if (emailToSend) {
             await resend.emails.send({
@@ -45,20 +44,21 @@ export async function POST(req: NextRequest) {
                 to: emailToSend,
                 subject: "Your vinyl order has shipped! 📦",
                 html: `
-          <h2>Hi ${order.user?.name || order.name || "there"},</h2>
-          <p>Your vinyl order from <strong>Spinister</strong> is on its way! 🎶</p>
-          <p>📍 Shipping to: <br/>
-            ${order.name}<br/>
-            ${order.street}<br/>
-            ${order.postalCode} ${order.city}, ${order.country}
-          </p>
-          <p>Enjoy the music,<br/>The Spinister Team</p>
-        `,
+                    <h2>Hi ${order.User?.name || order.name || "there"},</h2>
+                    <p>Your vinyl order from <strong>Spinister</strong> is on its way! 🎶</p>
+                    <p>📍 Shipping to: <br/>
+                        ${order.name}<br/>
+                        ${order.street}<br/>
+                        ${order.postalCode} ${order.city}, ${order.country}
+                    </p>
+                    <p>Enjoy the music,<br/>The Spinister Team</p>
+                `,
             });
         }
 
         return NextResponse.json({ success: true });
-    } catch {
+    } catch (error) {
+        console.error("[Shipped Email Error]", error);
         return NextResponse.json({ error: "Failed to mark order as shipped" }, { status: 500 });
     }
 }

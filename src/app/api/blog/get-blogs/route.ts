@@ -1,16 +1,29 @@
-import { NextResponse } from "next/server";
-import { createServerClient } from "@/lib/supabase/server";
+// src/app/api/blog/get-blogs/route.ts
+import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
-    const supabase = createServerClient();
+    const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
 
     const { data: blogs, error } = await supabase
-        .from("Blog")
-        .select("id, title, content, createdAt, author:users(name, email)")
-        .order("createdAt", { ascending: false });
+        .from('Blog')
+        .select(`
+            id,
+            title,
+            content,
+            createdAt,
+            author:User (
+                name,
+                email
+            )
+        `);
 
-    if (error || !blogs) {
-        return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
+    if (error) {
+        console.error('[Blog fetch error]', error);
+        return NextResponse.json({ error: 'Failed to load blogs' }, { status: 500 });
     }
 
     return NextResponse.json(blogs, { status: 200 });

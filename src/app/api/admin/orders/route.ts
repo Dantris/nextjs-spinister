@@ -13,13 +13,14 @@ export async function GET(req: NextRequest) {
 
     const { data: orders } = await supabase
         .from("Order")
-        .select("*, users(name, email)")
+        .select("*, User(name, email)")
         .order("createdAt", { ascending: false });
 
     return NextResponse.json(
         (orders || []).map((order) => ({
             ...order,
-            user: order.users ?? null,
+            user: order.user ?? null, // lowercase or match your select()
         }))
     );
+
 }

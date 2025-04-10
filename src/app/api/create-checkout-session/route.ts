@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
-import { PrismaClient, Prisma } from "@prisma/client";
 import { getToken } from "next-auth/jwt";
+import { createServerClient } from "@/lib/supabase/server";
 
-const prisma = new PrismaClient();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2025-02-24.acacia",
 });
@@ -31,16 +30,10 @@ interface RequestBody {
     address: Address;
 }
 
-interface TokenPayload {
-    id: string;
-    name?: string;
-    email?: string;
-    role?: "admin" | "user";
-}
-
 export async function POST(req: NextRequest) {
     try {
-        const token = (await getToken({ req })) as TokenPayload | null;
+        const supabase = createServerClient(); // ✅ based on your config
+        const token = await getToken({ req });
         const body = (await req.json()) as RequestBody;
         const { items, address } = body;
 
@@ -49,17 +42,19 @@ export async function POST(req: NextRequest) {
             0
         );
 
-        const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map((item) => ({
-            price_data: {
-                currency: "eur",
-                product_data: {
-                    name: item.title,
-                    images: [item.image || "https://via.placeholder.com/400"],
+        const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = items.map(
+            (item) => ({
+                price_data: {
+                    currency: "eur",
+                    product_data: {
+                        name: item.title,
+                        images: [item.image || "https://via.placeholder.com/400"],
+                    },
+                    unit_amount: Math.round(item.price * 100),
                 },
-                unit_amount: Math.round(item.price * 100),
-            },
-            quantity: item.quantity,
-        }));
+                quantity: item.quantity,
+            })
+        );
 
         const stripeSession = await stripe.checkout.sessions.create({
             payment_method_types: ["card", "klarna", "sofort", "sepa_debit"],
@@ -67,13 +62,14 @@ export async function POST(req: NextRequest) {
             line_items: lineItems,
             success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
+            customer_email: address.email,
             customer_creation: "always",
         });
 
-        await prisma.order.create({
-            data: {
-                userId: token?.id || null,
-                items: items as unknown as Prisma.InputJsonValue,
+        const { error } = await supabase.from("Order").insert([
+            {
+                user_id: token?.id || null,
+                items, // ✅ make sure this column is jsonb in Supabase
                 total: parseFloat(totalPrice.toFixed(2)),
                 paid: false,
                 shipped: false,
@@ -85,13 +81,16 @@ export async function POST(req: NextRequest) {
                 postalCode: address.postalCode,
                 country: address.country,
             },
-        });
+        ]);
+
+        if (error) {
+            console.error("[Supabase Insert Error]", error.message);
+            return NextResponse.json({ error: "Failed to save order" }, { status: 500 });
+        }
 
         return NextResponse.json({ id: stripeSession.id });
-    } catch {
-        return NextResponse.json(
-            { error: "Something went wrong" },
-            { status: 500 }
-        );
+    } catch (err) {
+        console.error("[Checkout Error]", err);
+        return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
 }

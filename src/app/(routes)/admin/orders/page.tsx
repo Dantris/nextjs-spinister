@@ -41,8 +41,17 @@ export default function AdminOrdersPage() {
     async function fetchOrders() {
         const res = await fetch("/api/admin/orders");
         const data = await res.json();
-        setOrders(data);
+
+        // Coerce all paid and shipped values to booleans
+        const fixed = data.map((order: any) => ({
+            ...order,
+            paid: Boolean(order.paid),
+            shipped: Boolean(order.shipped),
+        }));
+
+        setOrders(fixed);
     }
+
 
     async function markAsShipped(orderId: string) {
         const res = await fetch("/api/admin/mark-shipped", {

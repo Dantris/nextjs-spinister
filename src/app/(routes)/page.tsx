@@ -72,15 +72,16 @@ export default function Home() {
         >
           {vinyls.map((v) => (
             <div key={v.id}>
-              <div className="relative w-full h-80">
+              <div className="relative w-full h-56">
                 <Image
-                  src={v.image || "https://via.placeholder.com/800x400"}
+                  src={v.image || "https://via.placeholder.com/400"}
                   alt={v.title}
                   fill
-                  className="object-cover"
-                  sizes="100vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 768px) 100vw, 33vw"
                 />
               </div>
+
               <p className="legend bg-black bg-opacity-60 text-white text-lg font-semibold px-4 py-2 rounded">
                 {v.title} — {v.artist}
               </p>

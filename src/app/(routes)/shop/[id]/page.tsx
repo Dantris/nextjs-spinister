@@ -56,11 +56,16 @@ export default function ProductPage() {
         <main className="min-h-screen bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-white px-6 py-12">
             <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-12">
                 {/* 🖼 Image */}
-                <Image
-                    src={vinyl?.image || "https://via.placeholder.com/400"}
-                    alt={vinyl?.title ?? "Vinyl record"}
-                    className="w-full max-w-sm h-auto object-cover rounded-xl shadow-lg"
-                />
+                <div className="relative w-full max-w-sm h-[400px]">
+                    <Image
+                        src={vinyl?.image || "https://via.placeholder.com/400"}
+                        alt={vinyl?.title ?? "Vinyl record"}
+                        fill
+                        className="object-cover rounded-xl shadow-lg"
+                        sizes="(max-width: 768px) 100vw, 400px"
+                    />
+                </div>
+
 
                 {/* 🎶 Details */}
                 <div className="flex flex-col justify-between">

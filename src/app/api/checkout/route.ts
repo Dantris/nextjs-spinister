@@ -63,13 +63,14 @@ export async function POST(req: NextRequest) {
             line_items: lineItems,
             success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/cart`,
+            customer_email: address.email,
             customer_creation: "always",
         });
 
-        await supabase.from("Order").insert([
+        const { error } = await supabase.from("Order").insert([
             {
-                userId: token?.id || null,
-                items: items,
+                user_id: token?.id || null,
+                items: JSON.stringify(items),
                 total: parseFloat(totalPrice.toFixed(2)),
                 paid: false,
                 shipped: false,
@@ -83,8 +84,15 @@ export async function POST(req: NextRequest) {
             },
         ]);
 
+
+        if (error) {
+            console.error("[Order Insert Error]", error.message);
+            return NextResponse.json({ error: "Failed to save order" }, { status: 500 });
+        }
+
         return NextResponse.json({ id: stripeSession.id });
-    } catch {
+    } catch (err) {
+        console.error("[Checkout Error]", err);
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
 }
