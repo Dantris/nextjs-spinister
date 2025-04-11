@@ -99,6 +99,7 @@ export default function AdminOrdersPage() {
                                     >
                                         {order.paid ? "✅ Paid" : "❌ Unpaid"}
                                     </span>
+
                                     <span
                                         className={`px-3 py-1 rounded-full text-sm font-semibold ${order.shipped ? "bg-blue-100 text-blue-700" : "bg-yellow-100 text-yellow-700"
                                             }`}
@@ -129,8 +130,8 @@ export default function AdminOrdersPage() {
                                 disabled={!order.paid || order.shipped}
                                 onClick={() => markAsShipped(order.id)}
                                 className={`mt-6 px-5 py-2 rounded-md font-semibold text-white transition ${order.shipped || !order.paid
-                                    ? "bg-gray-400 cursor-not-allowed"
-                                    : "bg-blue-600 hover:bg-blue-700"
+                                        ? "bg-gray-400 cursor-not-allowed"
+                                        : "bg-blue-600 hover:bg-blue-700"
                                     }`}
                             >
                                 {order.shipped ? "✅ Already Shipped" : "Mark as Shipped"}
