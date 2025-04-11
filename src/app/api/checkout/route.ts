@@ -84,13 +84,12 @@ export async function POST(req: NextRequest) {
             },
         ]);
 
-
         if (error) {
             return NextResponse.json({ error: "Failed to save order" }, { status: 500 });
         }
 
         return NextResponse.json({ id: stripeSession.id });
-    } catch (err) {
+    } catch {
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
 }

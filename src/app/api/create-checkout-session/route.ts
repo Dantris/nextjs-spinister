@@ -32,7 +32,7 @@ interface RequestBody {
 
 export async function POST(req: NextRequest) {
     try {
-        const supabase = createServerClient(); // ✅ based on your config
+        const supabase = createServerClient();
         const token = await getToken({ req });
         const body = (await req.json()) as RequestBody;
         const { items, address } = body;
@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         const { error } = await supabase.from("Order").insert([
             {
                 user_id: token?.id || null,
-                items, // ✅ make sure this column is jsonb in Supabase
+                items,
                 total: parseFloat(totalPrice.toFixed(2)),
                 paid: false,
                 shipped: false,
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
         }
 
         return NextResponse.json({ id: stripeSession.id });
-    } catch (err) {
+    } catch {
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
 }

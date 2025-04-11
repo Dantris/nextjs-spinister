@@ -26,24 +26,24 @@ export default function UploadVinylForm({ refreshVinyls }: { refreshVinyls: () =
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Accept": "application/json" // ✅ Ensures JSON response
+                    Accept: "application/json"
                 },
                 body: JSON.stringify(vinylData),
             });
 
-            const data = await res.json(); // ✅ Ensures JSON parsing
+            const data = await res.json();
+
             if (!res.ok) {
                 setMessage(`Upload failed: ${data.error || "Unknown error"}`);
                 return;
             }
 
             setMessage("Vinyl uploaded successfully!");
-            refreshVinyls(); // Refresh list
-        } catch (error) {
+            refreshVinyls();
+        } catch {
             setMessage("Something went wrong!");
         }
     }
-
 
     return (
         <form onSubmit={handleSubmit} className="p-4 border rounded shadow-md flex flex-col gap-2">
@@ -53,7 +53,6 @@ export default function UploadVinylForm({ refreshVinyls }: { refreshVinyls: () =
 
             <input
                 type="text"
-                name="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Title"
@@ -63,7 +62,6 @@ export default function UploadVinylForm({ refreshVinyls }: { refreshVinyls: () =
 
             <input
                 type="text"
-                name="artist"
                 value={artist}
                 onChange={(e) => setArtist(e.target.value)}
                 placeholder="Artist"
@@ -73,7 +71,6 @@ export default function UploadVinylForm({ refreshVinyls }: { refreshVinyls: () =
 
             <input
                 type="text"
-                name="genre"
                 value={genre}
                 onChange={(e) => setGenre(e.target.value)}
                 placeholder="Genre"
@@ -83,7 +80,6 @@ export default function UploadVinylForm({ refreshVinyls }: { refreshVinyls: () =
 
             <input
                 type="number"
-                name="price"
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="Price"
@@ -93,7 +89,6 @@ export default function UploadVinylForm({ refreshVinyls }: { refreshVinyls: () =
 
             <input
                 type="text"
-                name="image"
                 value={image}
                 onChange={(e) => setImage(e.target.value)}
                 placeholder="Image URL"
