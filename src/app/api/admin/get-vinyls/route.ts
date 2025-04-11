@@ -3,14 +3,12 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase/client';
 
 export async function GET() {
-    console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
 
     const { data: vinyls, error } = await supabase
         .from("Vinyl")
         .select("id, title, artist, genre, price, image");
 
     if (error) {
-        console.error("[Vinyl fetch error]", error);
         return NextResponse.json({ error: "Failed to fetch vinyls" }, { status: 500 });
     }
 

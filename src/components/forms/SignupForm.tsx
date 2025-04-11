@@ -43,48 +43,42 @@ export default function SignupForm({
     };
 
     return (
-        <form onSubmit={handleSubmit} className="bg-white p-6 shadow-md rounded-lg">
-            <h2 className="text-2xl font-bold mb-4">Sign Up</h2>
+        <form onSubmit={handleSubmit} className="p-4 border rounded shadow-md flex flex-col gap-2 w-full max-w-md">
+            <h2 className="text-lg font-bold mb-2">Sign Up</h2>
 
             {error && <p className="text-red-500">{error}</p>}
             {success && <p className="text-green-500">{success}</p>}
 
-            <label className="block mb-2">
-                Name:
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full border p-2 rounded mt-1"
-                    required
-                />
-            </label>
+            <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Name"
+                className="border p-2 rounded"
+                required
+            />
 
-            <label className="block mb-2">
-                Email:
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full border p-2 rounded mt-1"
-                    required
-                />
-            </label>
+            <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email"
+                className="border p-2 rounded"
+                required
+            />
 
-            <label className="block mb-4">
-                Password:
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full border p-2 rounded mt-1"
-                    required
-                />
-            </label>
+            <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+                className="border p-2 rounded"
+                required
+            />
 
             <button
                 type="submit"
-                className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
             >
                 Sign Up
             </button>

@@ -41,7 +41,6 @@ export default function Home() {
         setBlogs(await blogRes.json());
       } catch (error: unknown) {
         if (error instanceof Error) {
-          console.error(error.message);
           setError(error.message);
         }
       } finally {

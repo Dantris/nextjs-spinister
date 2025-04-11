@@ -21,8 +21,6 @@ export default function UploadVinylForm({ refreshVinyls }: { refreshVinyls: () =
             image,
         };
 
-        console.log("✅ Submitting Vinyl:", vinylData);
-
         try {
             const res = await fetch("/api/admin/upload-vinyl", {
                 method: "POST",
@@ -35,16 +33,13 @@ export default function UploadVinylForm({ refreshVinyls }: { refreshVinyls: () =
 
             const data = await res.json(); // ✅ Ensures JSON parsing
             if (!res.ok) {
-                console.error("🚨 Upload failed:", data);
                 setMessage(`Upload failed: ${data.error || "Unknown error"}`);
                 return;
             }
 
-            console.log("✅ Vinyl uploaded successfully:", data);
             setMessage("Vinyl uploaded successfully!");
             refreshVinyls(); // Refresh list
         } catch (error) {
-            console.error("🚨 Unexpected Error:", error);
             setMessage("Something went wrong!");
         }
     }

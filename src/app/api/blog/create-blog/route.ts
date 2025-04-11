@@ -5,7 +5,6 @@ import { createClient } from "@supabase/supabase-js";
 
 export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
-    console.log("Session user:", session?.user); // ✅ DEBUG
 
     if (!session || session.user.role !== "admin") {
         return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
@@ -35,7 +34,6 @@ export async function POST(req: NextRequest) {
         .single();
 
     if (error) {
-        console.error("[Blog create error]", error.message || error);
         return NextResponse.json({ error: error.message || "Something went wrong" }, { status: 500 });
     }
 

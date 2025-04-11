@@ -86,13 +86,11 @@ export async function POST(req: NextRequest) {
 
 
         if (error) {
-            console.error("[Order Insert Error]", error.message);
             return NextResponse.json({ error: "Failed to save order" }, { status: 500 });
         }
 
         return NextResponse.json({ id: stripeSession.id });
     } catch (err) {
-        console.error("[Checkout Error]", err);
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 });
     }
 }

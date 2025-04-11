@@ -58,7 +58,6 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
-        console.error("[Shipped Email Error]", error);
         return NextResponse.json({ error: "Failed to mark order as shipped" }, { status: 500 });
     }
 }

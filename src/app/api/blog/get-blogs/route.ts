@@ -22,7 +22,6 @@ export async function GET() {
         `);
 
     if (error) {
-        console.error('[Blog fetch error]', error);
         return NextResponse.json({ error: 'Failed to load blogs' }, { status: 500 });
     }
 

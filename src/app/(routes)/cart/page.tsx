@@ -35,7 +35,6 @@ export default function CartPage() {
         const data = await res.json();
 
         if (!data.id) {
-            console.error("❌ Failed to create Stripe session:", data.error);
             return;
         }
 

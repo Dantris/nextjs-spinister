@@ -20,10 +20,6 @@ export default function AdminDashboard() {
     const [vinyls, setVinyls] = useState<Vinyl[]>([]);
     const [showForm, setShowForm] = useState(false);
 
-    console.log("URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
-    console.log("KEY:", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
-
     useEffect(() => {
         if (status === "loading") return;
         if (!session || session.user.role !== "admin") {
@@ -47,8 +43,7 @@ export default function AdminDashboard() {
             const res = await fetch(`/api/admin/delete-vinyl?id=${id}`, { method: "DELETE" });
             if (!res.ok) throw new Error("Failed to delete");
             fetchVinyls();
-        } catch (err) {
-            console.error("❌ Delete failed:", err);
+        } catch {
             alert("Something went wrong");
         }
     }
@@ -69,14 +64,12 @@ export default function AdminDashboard() {
                     </button>
                 </div>
 
-                {/* Upload Form */}
                 {showForm && (
                     <div className="mb-8">
                         <UploadVinylForm refreshVinyls={fetchVinyls} />
                     </div>
                 )}
 
-                {/* Vinyl List */}
                 {vinyls.length === 0 ? (
                     <p className="text-gray-500">No vinyls available yet.</p>
                 ) : (

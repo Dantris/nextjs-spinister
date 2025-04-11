@@ -17,8 +17,7 @@ export async function POST(req: NextRequest) {
             sig!,
             process.env.STRIPE_WEBHOOK_SECRET!
         );
-    } catch (err) {
-        console.error("[Stripe Webhook] Signature error:", err);
+    } catch {
         return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 
@@ -26,16 +25,10 @@ export async function POST(req: NextRequest) {
     const session = event.data.object as Stripe.Checkout.Session;
 
     if (event.type === "checkout.session.completed" && session.payment_status === "paid") {
-        const { error } = await supabase
+        await supabase
             .from("Order")
             .update({ paid: true })
             .eq("stripeSessionId", session.id);
-
-        if (error) {
-            console.error("[Stripe Webhook] Failed to update order:", error);
-        } else {
-            console.log("[Stripe Webhook] Order marked as paid");
-        }
     }
 
     return NextResponse.json({ received: true });

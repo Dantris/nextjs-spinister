@@ -30,7 +30,6 @@ function CheckoutForm() {
         });
 
         if (result.error) {
-            console.error('❌ Payment error:', result.error.message);
             setStatus('error');
         } else {
             setStatus('success');

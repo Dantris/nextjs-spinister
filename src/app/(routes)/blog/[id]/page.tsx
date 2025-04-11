@@ -32,7 +32,6 @@ export default function BlogPostPage() {
                 setBlog(foundBlog);
             } catch (error: unknown) {
                 if (error instanceof Error) {
-                    console.error(error.message);
                     setError(error.message);
                 }
             } finally {
