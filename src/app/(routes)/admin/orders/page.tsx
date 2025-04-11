@@ -42,8 +42,7 @@ export default function AdminOrdersPage() {
         const res = await fetch("/api/admin/orders");
         const data = await res.json();
 
-        // Coerce all paid and shipped values to booleans
-        const fixed = data.map((order: any) => ({
+        const fixed = (data as Order[]).map((order) => ({
             ...order,
             paid: Boolean(order.paid),
             shipped: Boolean(order.shipped),
@@ -51,6 +50,7 @@ export default function AdminOrdersPage() {
 
         setOrders(fixed);
     }
+
 
 
     async function markAsShipped(orderId: string) {
@@ -130,8 +130,8 @@ export default function AdminOrdersPage() {
                                 disabled={!order.paid || order.shipped}
                                 onClick={() => markAsShipped(order.id)}
                                 className={`mt-6 px-5 py-2 rounded-md font-semibold text-white transition ${order.shipped || !order.paid
-                                        ? "bg-gray-400 cursor-not-allowed"
-                                        : "bg-blue-600 hover:bg-blue-700"
+                                    ? "bg-gray-400 cursor-not-allowed"
+                                    : "bg-blue-600 hover:bg-blue-700"
                                     }`}
                             >
                                 {order.shipped ? "✅ Already Shipped" : "Mark as Shipped"}
